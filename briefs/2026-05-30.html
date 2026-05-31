@@ -1703,6 +1703,7 @@
     .friend-link-label { display: none !important; }
   }
   @media (max-width: 1100px) {
+    :root { --dock-top: 56px !important; }
     .archive-handle { left: 0 !important; }
     body.archive-mobile-open .archive-dock { transform: translateX(0) !important; }
     body.archive-mobile-open .archive-handle { left: var(--dock-width) !important; }
@@ -2091,6 +2092,7 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
     transition: transform .32s cubic-bezier(.55, .05, .25, 1);
   }
   body.archive-collapsed .archive-dock { transform: translateX(-100%); }
+  html[data-archive-collapsed="1"] body:not(.archive-mobile-open) .archive-dock { transform: translateX(-100%); }
 
   .archive-head { padding: 16px var(--dock-pad) 12px; border-bottom: 1px solid rgba(126, 96, 55, .18); }
   .archive-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: #241b12; letter-spacing: .08em; text-transform: uppercase; }
@@ -2149,6 +2151,7 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
   }
   .archive-handle:hover { background: #efe3c9; }
   body.archive-collapsed .archive-handle { left: 0; }
+  html[data-archive-collapsed="1"] body:not(.archive-mobile-open) .archive-handle { left: 0; }
   .archive-handle-arrow {
     width: 6px; height: 6px;
     border-left: 1.5px solid #8f3a28;
@@ -2157,6 +2160,7 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
     transition: transform .25s ease;
   }
   body.archive-collapsed .archive-handle-arrow { transform: rotate(-135deg); }
+  html[data-archive-collapsed="1"] body:not(.archive-mobile-open) .archive-handle-arrow { transform: rotate(-135deg); }
 
   [data-theme="dark"] .archive-dock {
     background: #17110c;
@@ -2238,25 +2242,27 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
     border-color: #df8d64;
   }
 
-  /* 把原本左侧的目录 (.toc) 推到右侧悬浮 */
-  aside.toc {
-    position: fixed !important;
-    top: var(--dock-top) !important;
-    right: 20px !important;
-    left: auto !important;
-    width: 240px !important;
-    max-height: calc(100vh - var(--dock-top) - 20px) !important;
-    margin: 0 !important;
-    z-index: 20;
-    overflow-y: auto;
-  }
   @media (min-width: 1101px) {
+    /* 桌面端把正文目录推到右侧；移动端完全交回原模板抽屉逻辑。 */
+    aside.toc {
+      position: fixed !important;
+      top: var(--dock-top) !important;
+      right: 20px !important;
+      left: auto !important;
+      width: 240px !important;
+      max-height: calc(100vh - var(--dock-top) - 20px) !important;
+      margin: 0 !important;
+      z-index: 20;
+      overflow-y: auto;
+    }
     .toc-backdrop { display: none !important; }
   }
 
   /* 窄屏自适应 */
   @media (max-width: 1280px) {
     :root { --dock-width: 210px; }
+  }
+  @media (min-width: 1101px) and (max-width: 1280px) {
     aside.toc { width: 220px !important; }
   }
   @media (max-width: 1100px) {
@@ -2265,30 +2271,6 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
     body.archive-mobile-open .archive-dock { transform: translateX(0); }
     body.archive-mobile-open .archive-handle { left: var(--dock-width); }
     body.archive-mobile-open .archive-handle-arrow { transform: rotate(45deg); }
-    aside.toc {
-      display: block !important;
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: auto !important;
-      width: min(300px, 82vw) !important;
-      height: 100dvh !important;
-      max-height: 100dvh !important;
-      margin: 0 !important;
-      z-index: var(--z-drawer, 200) !important;
-      transform: translateX(-105%) !important;
-      transition: transform .25s ease !important;
-    }
-    body.toc-open aside.toc { transform: translateX(0) !important; }
-    .toc-backdrop {
-      display: block !important;
-      opacity: 0;
-      pointer-events: none;
-    }
-    body.toc-open .toc-backdrop {
-      opacity: 1;
-      pointer-events: auto;
-    }
   }
 </style>
 <script>
@@ -2412,6 +2394,7 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
         document.body.classList.toggle('archive-mobile-open');
       } else {
         document.body.classList.toggle('archive-collapsed');
+        document.documentElement.dataset.archiveCollapsed = document.body.classList.contains('archive-collapsed') ? '1' : '0';
         try { localStorage.setItem('archive-collapsed', document.body.classList.contains('archive-collapsed') ? '1' : '0'); } catch(_e) {}
       }
     });
@@ -2421,11 +2404,15 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
       }
     });
     try {
-      if (localStorage.getItem('archive-collapsed') === '1') document.body.classList.add('archive-collapsed');
+      if (localStorage.getItem('archive-collapsed') === '1') {
+        document.documentElement.dataset.archiveCollapsed = '1';
+        document.body.classList.add('archive-collapsed');
+      }
     } catch(_e) {}
   })();
 </script>
 <!-- ARCHIVE_SIDEBAR_END -->
+
 
 
 
