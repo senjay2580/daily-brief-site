@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh" data-theme="light" style="--rec-label: '★ 推荐'">
 <head>
+<script id="SITE_EARLY_STATE">
+  (function() {
+    try {
+      var theme = localStorage.getItem('md2html-theme');
+      if (theme) document.documentElement.dataset.theme = theme;
+      if (localStorage.getItem('archive-collapsed') === '1') {
+        document.documentElement.dataset.archiveCollapsed = '1';
+      }
+    } catch (_e) {}
+  })();
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
@@ -1690,28 +1701,12 @@
     .friend-links { gap: 5px !important; margin-right: 2px !important; padding-right: 8px !important; }
     .friend-link { width: 36px !important; height: 36px !important; padding: 0 !important; justify-content: center !important; }
     .friend-link-label { display: none !important; }
-    aside.toc {
-      display: block !important;
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: auto !important;
-      width: min(300px, 82vw) !important;
-      height: 100dvh !important;
-      max-height: 100dvh !important;
-      margin: 0 !important;
-      z-index: var(--z-drawer, 200) !important;
-      transform: translateX(-105%) !important;
-      transition: transform .25s ease !important;
-    }
-    body.toc-open aside.toc { transform: translateX(0) !important; }
-    .toc-backdrop { display: block !important; opacity: 0; pointer-events: none; }
-    body.toc-open .toc-backdrop { opacity: 1; pointer-events: auto; }
   }
   @media (max-width: 1100px) {
     .archive-handle { left: 0 !important; }
     body.archive-mobile-open .archive-dock { transform: translateX(0) !important; }
     body.archive-mobile-open .archive-handle { left: var(--dock-width) !important; }
+    body.archive-mobile-open .archive-handle-arrow { transform: rotate(45deg) !important; }
   }
 </style>
 </head>
@@ -2255,7 +2250,9 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
     z-index: 20;
     overflow-y: auto;
   }
-  .toc-backdrop { display: none !important; }
+  @media (min-width: 1101px) {
+    .toc-backdrop { display: none !important; }
+  }
 
   /* 窄屏自适应 */
   @media (max-width: 1280px) {
@@ -2264,8 +2261,34 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
   }
   @media (max-width: 1100px) {
     .archive-dock { transform: translateX(-100%); }
-    body:not(.archive-collapsed) .archive-handle { left: 0; }
-    aside.toc { display: none !important; }
+    .archive-handle { left: 0; }
+    body.archive-mobile-open .archive-dock { transform: translateX(0); }
+    body.archive-mobile-open .archive-handle { left: var(--dock-width); }
+    body.archive-mobile-open .archive-handle-arrow { transform: rotate(45deg); }
+    aside.toc {
+      display: block !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: auto !important;
+      width: min(300px, 82vw) !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      margin: 0 !important;
+      z-index: var(--z-drawer, 200) !important;
+      transform: translateX(-105%) !important;
+      transition: transform .25s ease !important;
+    }
+    body.toc-open aside.toc { transform: translateX(0) !important; }
+    .toc-backdrop {
+      display: block !important;
+      opacity: 0;
+      pointer-events: none;
+    }
+    body.toc-open .toc-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 </style>
 <script>
@@ -2384,8 +2407,18 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
 
     // 折叠：切换 body class，触发推拉 transition
     handle.addEventListener('click', function() {
-      document.body.classList.toggle('archive-collapsed');
-      try { localStorage.setItem('archive-collapsed', document.body.classList.contains('archive-collapsed') ? '1' : '0'); } catch(_e) {}
+      var mobile = window.matchMedia && window.matchMedia('(max-width: 1100px)').matches;
+      if (mobile) {
+        document.body.classList.toggle('archive-mobile-open');
+      } else {
+        document.body.classList.toggle('archive-collapsed');
+        try { localStorage.setItem('archive-collapsed', document.body.classList.contains('archive-collapsed') ? '1' : '0'); } catch(_e) {}
+      }
+    });
+    window.addEventListener('resize', function() {
+      if (!(window.matchMedia && window.matchMedia('(max-width: 1100px)').matches)) {
+        document.body.classList.remove('archive-mobile-open');
+      }
     });
     try {
       if (localStorage.getItem('archive-collapsed') === '1') document.body.classList.add('archive-collapsed');
@@ -2393,6 +2426,7 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
   })();
 </script>
 <!-- ARCHIVE_SIDEBAR_END -->
+
 
 
 

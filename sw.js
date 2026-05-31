@@ -1,4 +1,4 @@
-const CACHE = 'daily-brief-site-v2';
+const CACHE = 'daily-brief-site-v3';
 const CORE = ['/', '/index.html', '/briefs.json', '/assets/site.css', '/assets/pwa-icon.svg'];
 
 self.addEventListener('install', event => {
@@ -17,6 +17,15 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== location.origin) return;
+  const acceptsHtml = event.request.headers.get('accept')?.includes('text/html');
+  if (event.request.mode === 'navigate' || acceptsHtml) {
+    event.respondWith(fetch(event.request).then(response => {
+      const copy = response.clone();
+      caches.open(CACHE).then(cache => cache.put(event.request, copy));
+      return response;
+    }).catch(() => caches.match(event.request)));
+    return;
+  }
   if (url.pathname.endsWith('/briefs.json')) {
     event.respondWith(fetch(event.request).then(response => {
       const copy = response.clone();
