@@ -9,10 +9,6 @@
       if (localStorage.getItem('archive-collapsed') === '1') {
         document.documentElement.dataset.archiveCollapsed = '1';
       }
-      if (sessionStorage.getItem('site-route-transition') === '1') {
-        document.documentElement.dataset.siteRouteTransition = 'in';
-        sessionStorage.removeItem('site-route-transition');
-      }
     } catch (_e) {}
   })();
 </script>
@@ -2114,24 +2110,6 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
   .archive-item:hover .archive-label { color: #2d2117; }
   .archive-item.is-current .archive-label { color: #fff7e8; }
   .archive-empty { padding: 20px; text-align: center; color: #7c6a50; font-size: 12px; font-style: italic; }
-  body.site-route-changing .layout,
-  body.site-route-changing .back-to-top,
-  body.site-route-changing aside.toc {
-    opacity: 0;
-    transform: translateY(6px);
-    transition: opacity .18s ease, transform .18s ease;
-  }
-  html[data-site-route-transition="in"] body .layout,
-  html[data-site-route-transition="in"] body .back-to-top,
-  html[data-site-route-transition="in"] body aside.toc {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  body.site-route-ready .layout,
-  body.site-route-ready .back-to-top,
-  body.site-route-ready aside.toc {
-    transition: opacity .22s ease, transform .22s ease;
-  }
   .archive-handle {
     position: fixed; top: 50%; left: var(--dock-width); width: 18px; height: 56px; padding: 0;
     border: 1px solid rgba(126, 96, 55, .26); border-left: 0; border-radius: 0 8px 8px 0;
@@ -2227,15 +2205,6 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
         head.closest('.archive-month').classList.toggle('is-collapsed');
         return;
       }
-      var link = e.target.closest('.archive-item');
-      if (!link || link.classList.contains('is-current')) return;
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
-      var target = new URL(link.href, location.href);
-      if (target.origin !== location.origin) return;
-      e.preventDefault();
-      try { sessionStorage.setItem('site-route-transition', '1'); } catch (_e) {}
-      document.body.classList.add('site-route-changing');
-      window.setTimeout(function() { location.href = target.href; }, 170);
     });
     if (handle) handle.addEventListener('click', function() {
       if (matchMedia('(max-width: 1100px)').matches) document.body.classList.toggle('archive-mobile-open');
