@@ -2054,7 +2054,7 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
     });
   </script>
 <button class="back-to-top" type="button" onclick="scrollToDailyBriefTop()" title="回到顶部" aria-label="回到顶部"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg></button>
-<!-- ARCHIVE_SIDEBAR_START -->
+<!-- SITE_ARCHIVE_DOCK_START -->
 <aside class="archive-dock" id="archiveDock" aria-label="历史简报">
   <header class="archive-head">
     <div class="archive-title">
@@ -2062,209 +2062,88 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
       <span class="archive-title-text">历史简报</span>
       <span class="archive-count" id="archiveCount"></span>
     </div>
-    <div class="archive-search">
+    <label class="archive-search" aria-label="搜索历史简报">
       <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M10 18a8 8 0 1 1 6.32-3.094l5.387 5.387-1.414 1.414-5.387-5.387A7.962 7.962 0 0 1 10 18Zm0-2a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"/></svg>
       <input type="search" id="archiveSearch" placeholder="搜索日期 / 月份" autocomplete="off" spellcheck="false">
-    </div>
+    </label>
   </header>
   <nav class="archive-list" id="archiveList"></nav>
 </aside>
-<button class="archive-handle" id="archiveHandle" type="button" aria-label="折叠/展开 历史简报" title="折叠/展开 历史简报">
+<button class="archive-handle" id="archiveHandle" type="button" aria-label="折叠/展开历史简报" title="折叠/展开历史简报">
   <span class="archive-handle-arrow"></span>
 </button>
-<script id="archiveData" type="application/json">{"items": [{"date": "2026-05-30", "dir": "今日热点_2026-05-30"}, {"date": "2026-05-29", "dir": "今日热点_2026-05-29"}, {"date": "2026-05-28", "dir": "今日热点_2026-05-28"}], "current": "2026-05-30"}</script>
-<style>
+<script id="SITE_ARCHIVE_DATA" type="application/json">{"items": [{"date": "2026-05-31", "title": "今日热点简报（2026-05-31）", "href": "../briefs/2026-05-31.html"}, {"date": "2026-05-30", "title": "今日热点简报（2026-05-30）", "href": "../briefs/2026-05-30.html"}], "current": "2026-05-30"}</script>
+<style id="SITE_ARCHIVE_DOCK_STYLE">
   :root { --dock-width: 232px; --dock-top: 68px; --dock-pad: 14px; }
-
-  /* 关键：原 .layout 是多列 grid（左 TOC + 主内容），我把 aside.toc 强制 fixed 后
-     TOC 列空了，main 还被锁在第 2 列变成窄列。强制 grid 单列 → 主内容撑满 1240px */
   .layout { grid-template-columns: 1fr !important; }
-
-  /* 左侧 dock —— fixed 浮在左侧空白区，不动 body 流，避免压缩主内容 */
   .archive-dock {
     position: fixed; left: 0; top: var(--dock-top); bottom: 0;
     width: var(--dock-width); z-index: 30;
-    background: #f3e7cb;
-    border-right: 1px solid rgba(126, 96, 55, .26);
+    background: #f3e7cb; border-right: 1px solid rgba(126, 96, 55, .26);
     display: flex; flex-direction: column;
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    transform: translateX(0);
-    transition: transform .32s cubic-bezier(.55, .05, .25, 1);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    transform: translateX(0); transition: transform .32s cubic-bezier(.55, .05, .25, 1);
   }
-  body.archive-collapsed .archive-dock { transform: translateX(-100%); }
+  body.archive-collapsed .archive-dock,
   html[data-archive-collapsed="1"] body:not(.archive-mobile-open) .archive-dock { transform: translateX(-100%); }
-
   .archive-head { padding: 16px var(--dock-pad) 12px; border-bottom: 1px solid rgba(126, 96, 55, .18); }
-  .archive-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: #241b12; letter-spacing: .08em; text-transform: uppercase; }
+  .archive-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #241b12; letter-spacing: .08em; text-transform: uppercase; }
   .archive-dot { width: 7px; height: 7px; border-radius: 50%; background: #8f3a28; }
   .archive-title-text { flex: 1; }
-  .archive-count { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 500; color: #7c6a50; padding: 1px 7px; border-radius: 999px; background: rgba(143, 58, 40, .08); letter-spacing: 0; text-transform: none; }
-
-  .archive-search { margin-top: 10px; display: flex; align-items: center; gap: 7px; padding: 7px 10px; background: rgba(255, 251, 238, .85); border: 1px solid rgba(126, 96, 55, .22); border-radius: 8px; color: #7c6a50; transition: border-color .15s, background .15s; }
+  .archive-count { font: 600 11px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #7c6a50; padding: 2px 7px; border-radius: 999px; background: rgba(143, 58, 40, .08); letter-spacing: 0; text-transform: none; }
+  .archive-search { margin-top: 10px; display: flex; align-items: center; gap: 7px; padding: 7px 10px; background: rgba(255, 251, 238, .85); border: 1px solid rgba(126, 96, 55, .22); border-radius: 8px; color: #7c6a50; }
   .archive-search:focus-within { border-color: #8f3a28; background: #fffaf0; }
-  .archive-search input { flex: 1; border: 0; background: transparent; outline: none; font: inherit; font-size: 13px; color: #241b12; min-width: 0; }
-  .archive-search input::placeholder { color: #9c8a70; }
-
-  .archive-list { flex: 1; overflow-y: auto; padding: 6px 8px 18px; }
-  .archive-list::-webkit-scrollbar { width: 6px; }
-  .archive-list::-webkit-scrollbar-thumb { background: rgba(126, 96, 55, .25); border-radius: 999px; }
-  .archive-list::-webkit-scrollbar-track { background: transparent; }
-
+  .archive-search input { flex: 1; min-width: 0; border: 0; background: transparent; outline: 0; color: #241b12; font: inherit; font-size: 13px; }
+  .archive-list { flex: 1; overflow-y: auto; padding: 8px 8px 18px; }
   .archive-month { margin: 8px 0 2px; }
-  .archive-month-head { display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; cursor: pointer; user-select: none; border-radius: 6px; transition: background .15s; }
+  .archive-month-head { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; border: 0; background: transparent; color: #7c6a50; cursor: pointer; border-radius: 6px; font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .08em; }
   .archive-month-head:hover { background: rgba(143, 58, 40, .06); }
-  .archive-month-label { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; color: #7c6a50; letter-spacing: .08em; }
-  .archive-month-arrow { width: 7px; height: 7px; border-right: 1.5px solid #7c6a50; border-bottom: 1.5px solid #7c6a50; transform: rotate(45deg); transition: transform .2s; }
+  .archive-month-arrow { width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); transition: transform .2s; }
   .archive-month.is-collapsed .archive-month-arrow { transform: rotate(-45deg); }
-  .archive-month-items { display: flex; flex-direction: column; gap: 1px; margin-top: 3px; padding-left: 6px; border-left: 1px dashed rgba(126, 96, 55, .22); margin-left: 12px; }
+  .archive-month-items { display: flex; flex-direction: column; gap: 1px; margin: 3px 0 0 12px; padding-left: 6px; border-left: 1px dashed rgba(126, 96, 55, .22); }
   .archive-month.is-collapsed .archive-month-items { display: none; }
-
-  .archive-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 6px 10px; border-radius: 6px;
-    color: #2d2117; text-decoration: none;
-    font-size: 13px; line-height: 1.25;
-    transition: background .15s, color .15s;
-    position: relative;
-  }
-  .archive-item:hover { background: rgba(143, 58, 40, .1); }
-  .archive-item.is-current { background: #8f3a28; color: #fff7e8; font-weight: 600; }
-  .archive-day { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 600; letter-spacing: .02em; min-width: 36px; }
+  .archive-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; color: #2d2117; text-decoration: none; font-size: 13px; line-height: 1.25; }
+  .archive-item:hover { background: rgba(143, 58, 40, .10); }
+  .archive-item.is-current { background: #8f3a28; color: #fff7e8; font-weight: 700; }
+  .archive-day { min-width: 36px; font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   .archive-label { flex: 1; color: #5b4935; }
   .archive-item:hover .archive-label { color: #2d2117; }
   .archive-item.is-current .archive-label { color: #fff7e8; }
-
   .archive-empty { padding: 20px; text-align: center; color: #7c6a50; font-size: 12px; font-style: italic; }
-
-  /* 折叠把手：贴在 dock 右边缘，跟着 dock 一起推拉 */
   .archive-handle {
-    position: fixed; top: 50%; left: var(--dock-width);
-    width: 18px; height: 56px; padding: 0;
-    border: 1px solid rgba(126, 96, 55, .26);
-    border-left: none;
-    border-radius: 0 8px 8px 0;
-    background: #f3e7cb;
-    cursor: pointer; z-index: 31;
-    display: flex; align-items: center; justify-content: center;
-    transform: translateY(-50%);
-    transition: left .32s cubic-bezier(.55, .05, .25, 1), background .15s;
+    position: fixed; top: 50%; left: var(--dock-width); width: 18px; height: 56px; padding: 0;
+    border: 1px solid rgba(126, 96, 55, .26); border-left: 0; border-radius: 0 8px 8px 0;
+    background: #f3e7cb; cursor: pointer; z-index: 31; display: flex; align-items: center; justify-content: center;
+    transform: translateY(-50%); transition: left .32s cubic-bezier(.55, .05, .25, 1), background .15s;
   }
-  .archive-handle:hover { background: #efe3c9; }
-  body.archive-collapsed .archive-handle { left: 0; }
+  body.archive-collapsed .archive-handle,
   html[data-archive-collapsed="1"] body:not(.archive-mobile-open) .archive-handle { left: 0; }
-  .archive-handle-arrow {
-    width: 6px; height: 6px;
-    border-left: 1.5px solid #8f3a28;
-    border-bottom: 1.5px solid #8f3a28;
-    transform: rotate(45deg);
-    transition: transform .25s ease;
-  }
-  body.archive-collapsed .archive-handle-arrow { transform: rotate(-135deg); }
+  .archive-handle-arrow { width: 6px; height: 6px; border-left: 1.5px solid #8f3a28; border-bottom: 1.5px solid #8f3a28; transform: rotate(45deg); transition: transform .25s; }
+  body.archive-collapsed .archive-handle-arrow,
   html[data-archive-collapsed="1"] body:not(.archive-mobile-open) .archive-handle-arrow { transform: rotate(-135deg); }
-
-  [data-theme="dark"] .archive-dock {
-    background: #17110c;
-    border-right-color: rgba(190, 145, 88, .26);
-    box-shadow: 18px 0 40px rgba(0, 0, 0, .22);
-  }
-  [data-theme="dark"] .archive-head {
-    border-bottom-color: rgba(190, 145, 88, .18);
-  }
-  [data-theme="dark"] .archive-title {
-    color: #f4e8d0;
-  }
-  [data-theme="dark"] .archive-dot {
-    background: #df8d64;
-  }
-  [data-theme="dark"] .archive-count {
-    color: #c6ad82;
-    background: rgba(223, 141, 100, .12);
-  }
-  [data-theme="dark"] .archive-search {
-    color: #c6ad82;
-    background: rgba(43, 33, 24, .86);
-    border-color: rgba(190, 145, 88, .24);
-  }
-  [data-theme="dark"] .archive-search:focus-within {
-    border-color: #df8d64;
-    background: rgba(58, 43, 29, .94);
-  }
-  [data-theme="dark"] .archive-search input {
-    color: #f4e8d0;
-  }
-  [data-theme="dark"] .archive-search input::placeholder {
-    color: #a88f68;
-  }
-  [data-theme="dark"] .archive-list::-webkit-scrollbar-thumb {
-    background: rgba(190, 145, 88, .30);
-  }
-  [data-theme="dark"] .archive-month-head:hover {
-    background: rgba(223, 141, 100, .10);
-  }
-  [data-theme="dark"] .archive-month-label {
-    color: #c6ad82;
-  }
-  [data-theme="dark"] .archive-month-arrow {
-    border-color: #c6ad82;
-  }
-  [data-theme="dark"] .archive-month-items {
-    border-left-color: rgba(190, 145, 88, .24);
-  }
-  [data-theme="dark"] .archive-item {
-    color: #ead8b8;
-  }
-  [data-theme="dark"] .archive-item:hover {
-    background: rgba(223, 141, 100, .12);
-  }
+  [data-theme="dark"] .archive-dock { background: #17110c; border-right-color: rgba(190,145,88,.26); box-shadow: 18px 0 40px rgba(0,0,0,.22); }
+  [data-theme="dark"] .archive-head { border-bottom-color: rgba(190,145,88,.18); }
+  [data-theme="dark"] .archive-title { color: #f4e8d0; }
+  [data-theme="dark"] .archive-dot { background: #df8d64; }
+  [data-theme="dark"] .archive-count { color: #c6ad82; background: rgba(223,141,100,.12); }
+  [data-theme="dark"] .archive-search { color: #c6ad82; background: rgba(43,33,24,.86); border-color: rgba(190,145,88,.24); }
+  [data-theme="dark"] .archive-search input { color: #f4e8d0; }
+  [data-theme="dark"] .archive-month-head { color: #c6ad82; }
+  [data-theme="dark"] .archive-month-head:hover,
+  [data-theme="dark"] .archive-item:hover { background: rgba(223,141,100,.12); }
+  [data-theme="dark"] .archive-item,
   [data-theme="dark"] .archive-label,
-  [data-theme="dark"] .archive-item:hover .archive-label {
-    color: #ead8b8;
-  }
-  [data-theme="dark"] .archive-item.is-current {
-    background: #df8d64;
-    color: #17110c;
-  }
-  [data-theme="dark"] .archive-item.is-current .archive-label {
-    color: #17110c;
-  }
-  [data-theme="dark"] .archive-empty {
-    color: #c6ad82;
-  }
-  [data-theme="dark"] .archive-handle {
-    background: #17110c;
-    border-color: rgba(190, 145, 88, .26);
-    border-left: none;
-  }
-  [data-theme="dark"] .archive-handle:hover {
-    background: #2b2118;
-  }
-  [data-theme="dark"] .archive-handle-arrow {
-    border-color: #df8d64;
-  }
-
+  [data-theme="dark"] .archive-item:hover .archive-label { color: #ead8b8; }
+  [data-theme="dark"] .archive-item.is-current { background: #df8d64; color: #17110c; }
+  [data-theme="dark"] .archive-item.is-current .archive-label { color: #17110c; }
+  [data-theme="dark"] .archive-handle { background: #17110c; border-color: rgba(190,145,88,.26); border-left: 0; }
+  [data-theme="dark"] .archive-handle-arrow { border-color: #df8d64; }
   @media (min-width: 1101px) {
-    /* 桌面端把正文目录推到右侧；移动端完全交回原模板抽屉逻辑。 */
-    aside.toc {
-      position: fixed !important;
-      top: var(--dock-top) !important;
-      right: 20px !important;
-      left: auto !important;
-      width: 240px !important;
-      max-height: calc(100vh - var(--dock-top) - 20px) !important;
-      margin: 0 !important;
-      z-index: 20;
-      overflow-y: auto;
-    }
+    aside.toc { position: fixed !important; top: var(--dock-top) !important; right: 20px !important; left: auto !important; width: 240px !important; max-height: calc(100vh - var(--dock-top) - 20px) !important; margin: 0 !important; z-index: 20; overflow-y: auto; }
     .toc-backdrop { display: none !important; }
   }
-
-  /* 窄屏自适应 */
-  @media (max-width: 1280px) {
-    :root { --dock-width: 210px; }
-  }
-  @media (min-width: 1101px) and (max-width: 1280px) {
-    aside.toc { width: 220px !important; }
-  }
+  @media (max-width: 1280px) { :root { --dock-width: 210px; } }
+  @media (min-width: 1101px) and (max-width: 1280px) { aside.toc { width: 220px !important; } }
   @media (max-width: 1100px) {
     :root { --dock-top: 56px; }
     .archive-dock { transform: translateX(-100%); }
@@ -2274,164 +2153,63 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
     body.archive-mobile-open .archive-handle-arrow { transform: rotate(45deg); }
   }
 </style>
-<script>
+<script id="SITE_ARCHIVE_DOCK_SCRIPT">
   (function() {
-    var raw = document.getElementById('archiveData');
-    if (!raw) return;
-    var fallbackData;
-    try { fallbackData = JSON.parse(raw.textContent); } catch(e) { fallbackData = { items: [], current: '' }; }
-    var current = fallbackData.current || inferCurrentDate();
-    var handle = document.getElementById('archiveHandle');
+    var raw = document.getElementById('SITE_ARCHIVE_DATA');
+    var data = {items: [], current: ''};
+    try { data = JSON.parse(raw.textContent || '{}'); } catch (_e) {}
+    var current = data.current || (location.pathname.match(/20\d{2}-\d{2}-\d{2}/) || [''])[0];
     var list = document.getElementById('archiveList');
     var search = document.getElementById('archiveSearch');
-    var countEl = document.getElementById('archiveCount');
-    var activeItems = [];
-
-    function fmtMonth(m) {
-      var p = m.split('-');
-      return p[0] + ' / ' + p[1];
+    var count = document.getElementById('archiveCount');
+    var handle = document.getElementById('archiveHandle');
+    var items = data.items || [];
+    function weekday(date) {
+      var d = new Date(date + 'T00:00:00');
+      return ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()] || '';
     }
-    function fmtDay(d) { return d.slice(5); } // MM-DD
-    function weekday(d) {
-      var dt = new Date(d + 'T00:00:00');
-      return ['周日','周一','周二','周三','周四','周五','周六'][dt.getDay()];
-    }
-    function inferCurrentDate() {
-      var text = decodeURIComponent(location.pathname || '');
-      var match = text.match(/(20\d{2}-\d{2}-\d{2})/);
-      return match ? match[1] : '';
-    }
-    function normalizeItems(rawItems) {
-      return (rawItems || []).map(function(it) {
-        var date = it.date || '';
-        var href = it.href || (it.dir ? '../' + it.dir + '/daily-brief.html' : ('briefs/' + date + '.html'));
-        if (href.indexOf('briefs/') === 0 && /\/briefs\//.test(location.pathname)) href = '../' + href;
-        return {
-          date: date,
-          href: href,
-          title: it.title || ('今日热点简报（' + date + '）')
-        };
-      }).filter(function(it) { return /^20\d{2}-\d{2}-\d{2}$/.test(it.date); })
-        .sort(function(a, b) { return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
-    }
-    function loadSiteItems() {
-      if (!window.fetch || location.protocol === 'file:') return Promise.resolve(null);
-      var candidates = /\/briefs\//.test(location.pathname) ? ['../briefs.json', '/briefs.json'] : ['briefs.json', '/briefs.json'];
-      function tryOne(index) {
-        if (index >= candidates.length) return Promise.resolve(null);
-        return fetch(candidates[index], { cache: 'no-store' })
-          .then(function(res) { return res.ok ? res.json() : null; })
-          .catch(function() { return null; })
-          .then(function(data) { return data || tryOne(index + 1); });
-      }
-      return tryOne(0);
-    }
-    function renderArchive(items) {
-      activeItems = items;
-      list.innerHTML = '';
-      countEl.textContent = items.length;
-
+    function render(filter) {
+      if (!list) return;
+      var q = (filter || '').trim().toLowerCase();
+      var rows = items.filter(function(it) {
+        return !q || (it.date + ' ' + (it.title || '')).toLowerCase().indexOf(q) !== -1;
+      });
+      if (count) count.textContent = String(rows.length);
+      if (!rows.length) { list.innerHTML = '<div class="archive-empty">没有匹配的简报</div>'; return; }
       var groups = {};
-      items.forEach(function(it) {
-        var m = it.date.slice(0, 7);
-        (groups[m] = groups[m] || []).push(it);
-      });
-      var monthKeys = Object.keys(groups).sort().reverse();
-
-      monthKeys.forEach(function(m) {
-        var monthEl = document.createElement('div');
-        monthEl.className = 'archive-month';
-        var head = document.createElement('div');
-        head.className = 'archive-month-head';
-        head.innerHTML = '<span class="archive-month-label">' + fmtMonth(m) + '</span><span class="archive-month-arrow"></span>';
-        head.addEventListener('click', function() { monthEl.classList.toggle('is-collapsed'); });
-        var itemsEl = document.createElement('div');
-        itemsEl.className = 'archive-month-items';
-        groups[m].forEach(function(it) {
-          var a = document.createElement('a');
-          a.className = 'archive-item';
-          if (it.date === current) a.classList.add('is-current');
-          a.href = it.href;
-          a.dataset.date = it.date;
-          a.innerHTML = '<span class="archive-day">' + fmtDay(it.date) + '</span><span class="archive-label">' + weekday(it.date) + '</span>';
-          itemsEl.appendChild(a);
-        });
-        monthEl.appendChild(head);
-        monthEl.appendChild(itemsEl);
-        list.appendChild(monthEl);
-      });
-
-      if (items.length === 0) {
-        list.innerHTML = '<div class="archive-empty">还没有归档简报</div>';
-      }
+      rows.forEach(function(it) { (groups[it.date.slice(0, 7)] || (groups[it.date.slice(0, 7)] = [])).push(it); });
+      list.innerHTML = Object.keys(groups).sort().reverse().map(function(month) {
+        var collapsed = groups[month].every(function(it) { return it.date !== current; });
+        return '<section class="archive-month' + (collapsed ? ' is-collapsed' : '') + '">' +
+          '<button class="archive-month-head" type="button"><span>' + month.replace('-', ' / ') + '</span><span class="archive-month-arrow"></span></button>' +
+          '<div class="archive-month-items">' + groups[month].map(function(it) {
+            return '<a class="archive-item' + (it.date === current ? ' is-current' : '') + '" href="' + it.href + '">' +
+              '<span class="archive-day">' + it.date.slice(5) + '</span><span class="archive-label">' + weekday(it.date) + '</span></a>';
+          }).join('') + '</div></section>';
+      }).join('');
     }
-
-    // search filter
-    search.addEventListener('input', function() {
-      var q = search.value.trim().toLowerCase();
-      var visible = 0;
-      Array.prototype.forEach.call(list.querySelectorAll('.archive-month'), function(m) {
-        var monthMatch = m.querySelector('.archive-month-label').textContent.toLowerCase().indexOf(q) > -1;
-        var anyChild = false;
-        Array.prototype.forEach.call(m.querySelectorAll('.archive-item'), function(it) {
-          var hit = !q || monthMatch || it.dataset.date.toLowerCase().indexOf(q) > -1;
-          it.style.display = hit ? '' : 'none';
-          if (hit) anyChild = true;
-        });
-        m.style.display = (anyChild || (q && monthMatch)) ? '' : 'none';
-        if (q) m.classList.remove('is-collapsed');
-        if (anyChild) visible++;
-      });
-      countEl.textContent = q ? (visible + '/' + activeItems.length) : activeItems.length;
+    function setCollapsed(collapsed) {
+      document.body.classList.toggle('archive-collapsed', collapsed);
+      try { localStorage.setItem('archive-collapsed', collapsed ? '1' : '0'); } catch (_e) {}
+    }
+    render('');
+    fetch('../briefs.json', {cache: 'no-store'}).then(function(r) { return r.ok ? r.json() : null; }).then(function(remote) {
+      if (!remote) return;
+      items = remote.map(function(it) { return {date: it.date, title: it.title, href: '../' + it.href}; });
+      render(search ? search.value : '');
+    }).catch(function() {});
+    if (search) search.addEventListener('input', function() { render(search.value); });
+    if (list) list.addEventListener('click', function(e) {
+      var head = e.target.closest('.archive-month-head');
+      if (head) head.closest('.archive-month').classList.toggle('is-collapsed');
     });
-    loadSiteItems().then(function(siteItems) {
-      renderArchive(normalizeItems(siteItems || fallbackData.items || []));
+    if (handle) handle.addEventListener('click', function() {
+      if (matchMedia('(max-width: 1100px)').matches) document.body.classList.toggle('archive-mobile-open');
+      else setCollapsed(!document.body.classList.contains('archive-collapsed'));
     });
-
-    // 折叠：切换 body class，触发推拉 transition
-    handle.addEventListener('click', function() {
-      var mobile = window.matchMedia && window.matchMedia('(max-width: 1100px)').matches;
-      if (mobile) {
-        document.body.classList.toggle('archive-mobile-open');
-      } else {
-        document.body.classList.toggle('archive-collapsed');
-        document.documentElement.dataset.archiveCollapsed = document.body.classList.contains('archive-collapsed') ? '1' : '0';
-        try { localStorage.setItem('archive-collapsed', document.body.classList.contains('archive-collapsed') ? '1' : '0'); } catch(_e) {}
-      }
-    });
-    window.addEventListener('resize', function() {
-      if (!(window.matchMedia && window.matchMedia('(max-width: 1100px)').matches)) {
-        document.body.classList.remove('archive-mobile-open');
-      }
-    });
-    try {
-      if (localStorage.getItem('archive-collapsed') === '1') {
-        document.documentElement.dataset.archiveCollapsed = '1';
-        document.body.classList.add('archive-collapsed');
-      }
-    } catch(_e) {}
   })();
 </script>
-<!-- ARCHIVE_SIDEBAR_END -->
-
-
-
-
-
-
-
-
-
-
-
-
-<script id="SITE_PWA_REGISTER">
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      navigator.serviceWorker.register('../sw.js').catch(function() {});
-    });
-  }
-</script>
+<!-- SITE_ARCHIVE_DOCK_END -->
 </body>
 </html>
 
