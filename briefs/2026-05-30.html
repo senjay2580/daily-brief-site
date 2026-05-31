@@ -2221,23 +2221,14 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
   (function() {
     var raw = document.getElementById('archiveData');
     if (!raw) return;
-    var data;
-    try { data = JSON.parse(raw.textContent); } catch(e) { return; }
-    var items = data.items || [];
-    var current = data.current;
+    var fallbackData;
+    try { fallbackData = JSON.parse(raw.textContent); } catch(e) { fallbackData = { items: [], current: '' }; }
+    var current = fallbackData.current || inferCurrentDate();
     var handle = document.getElementById('archiveHandle');
     var list = document.getElementById('archiveList');
     var search = document.getElementById('archiveSearch');
     var countEl = document.getElementById('archiveCount');
-    countEl.textContent = items.length;
-
-    // group by month
-    var groups = {};
-    items.forEach(function(it) {
-      var m = it.date.slice(0, 7);
-      (groups[m] = groups[m] || []).push(it);
-    });
-    var monthKeys = Object.keys(groups).sort().reverse();
+    var activeItems = [];
 
     function fmtMonth(m) {
       var p = m.split('-');
@@ -2248,32 +2239,74 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
       var dt = new Date(d + 'T00:00:00');
       return ['周日','周一','周二','周三','周四','周五','周六'][dt.getDay()];
     }
+    function inferCurrentDate() {
+      var text = decodeURIComponent(location.pathname || '');
+      var match = text.match(/(20\d{2}-\d{2}-\d{2})/);
+      return match ? match[1] : '';
+    }
+    function normalizeItems(rawItems) {
+      return (rawItems || []).map(function(it) {
+        var date = it.date || '';
+        var href = it.href || (it.dir ? '../' + it.dir + '/daily-brief.html' : ('briefs/' + date + '.html'));
+        if (href.indexOf('briefs/') === 0 && /\/briefs\//.test(location.pathname)) href = '../' + href;
+        return {
+          date: date,
+          href: href,
+          title: it.title || ('今日热点简报（' + date + '）')
+        };
+      }).filter(function(it) { return /^20\d{2}-\d{2}-\d{2}$/.test(it.date); })
+        .sort(function(a, b) { return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+    }
+    function loadSiteItems() {
+      if (!window.fetch || location.protocol === 'file:') return Promise.resolve(null);
+      var candidates = /\/briefs\//.test(location.pathname) ? ['../briefs.json', '/briefs.json'] : ['briefs.json', '/briefs.json'];
+      function tryOne(index) {
+        if (index >= candidates.length) return Promise.resolve(null);
+        return fetch(candidates[index], { cache: 'no-store' })
+          .then(function(res) { return res.ok ? res.json() : null; })
+          .catch(function() { return null; })
+          .then(function(data) { return data || tryOne(index + 1); });
+      }
+      return tryOne(0);
+    }
+    function renderArchive(items) {
+      activeItems = items;
+      list.innerHTML = '';
+      countEl.textContent = items.length;
 
-    monthKeys.forEach(function(m, idx) {
-      var monthEl = document.createElement('div');
-      monthEl.className = 'archive-month';
-      var head = document.createElement('div');
-      head.className = 'archive-month-head';
-      head.innerHTML = '<span class="archive-month-label">' + fmtMonth(m) + '</span><span class="archive-month-arrow"></span>';
-      head.addEventListener('click', function() { monthEl.classList.toggle('is-collapsed'); });
-      var itemsEl = document.createElement('div');
-      itemsEl.className = 'archive-month-items';
-      groups[m].forEach(function(it) {
-        var a = document.createElement('a');
-        a.className = 'archive-item';
-        if (it.date === current) a.classList.add('is-current');
-        a.href = '../' + it.dir + '/daily-brief.html';
-        a.dataset.date = it.date;
-        a.innerHTML = '<span class="archive-day">' + fmtDay(it.date) + '</span><span class="archive-label">' + weekday(it.date) + '</span>';
-        itemsEl.appendChild(a);
+      var groups = {};
+      items.forEach(function(it) {
+        var m = it.date.slice(0, 7);
+        (groups[m] = groups[m] || []).push(it);
       });
-      monthEl.appendChild(head);
-      monthEl.appendChild(itemsEl);
-      list.appendChild(monthEl);
-    });
+      var monthKeys = Object.keys(groups).sort().reverse();
 
-    if (items.length === 0) {
-      list.innerHTML = '<div class="archive-empty">还没有归档简报</div>';
+      monthKeys.forEach(function(m) {
+        var monthEl = document.createElement('div');
+        monthEl.className = 'archive-month';
+        var head = document.createElement('div');
+        head.className = 'archive-month-head';
+        head.innerHTML = '<span class="archive-month-label">' + fmtMonth(m) + '</span><span class="archive-month-arrow"></span>';
+        head.addEventListener('click', function() { monthEl.classList.toggle('is-collapsed'); });
+        var itemsEl = document.createElement('div');
+        itemsEl.className = 'archive-month-items';
+        groups[m].forEach(function(it) {
+          var a = document.createElement('a');
+          a.className = 'archive-item';
+          if (it.date === current) a.classList.add('is-current');
+          a.href = it.href;
+          a.dataset.date = it.date;
+          a.innerHTML = '<span class="archive-day">' + fmtDay(it.date) + '</span><span class="archive-label">' + weekday(it.date) + '</span>';
+          itemsEl.appendChild(a);
+        });
+        monthEl.appendChild(head);
+        monthEl.appendChild(itemsEl);
+        list.appendChild(monthEl);
+      });
+
+      if (items.length === 0) {
+        list.innerHTML = '<div class="archive-empty">还没有归档简报</div>';
+      }
     }
 
     // search filter
@@ -2292,7 +2325,10 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
         if (q) m.classList.remove('is-collapsed');
         if (anyChild) visible++;
       });
-      countEl.textContent = q ? (visible + '/' + items.length) : items.length;
+      countEl.textContent = q ? (visible + '/' + activeItems.length) : activeItems.length;
+    });
+    loadSiteItems().then(function(siteItems) {
+      renderArchive(normalizeItems(siteItems || fallbackData.items || []));
     });
 
     // 折叠：切换 body class，触发推拉 transition
@@ -2306,6 +2342,7 @@ https://www.youtube.com/watch?v=dhl2oVh0UTo" onclick="copyRelatedVideoLinks(this
   })();
 </script>
 <!-- ARCHIVE_SIDEBAR_END -->
+
 
 
 
