@@ -2345,6 +2345,18 @@ https://www.youtube.com/watch?v=ZdhK63F-M3o" onclick="copyRelatedVideoLinks(this
       document.body.classList.toggle('archive-collapsed', collapsed);
       try { localStorage.setItem('archive-collapsed', collapsed ? '1' : '0'); } catch (_e) {}
     }
+    // Hand the pre-JS <html data-archive-collapsed> state off to body.archive-collapsed
+    // (the single source of truth the toggle uses) and clear the html attr. Without
+    // this, a page loaded while collapsed keeps the html attr forever and the handle
+    // click does nothing on the first (and every) press.
+    (function initCollapsed() {
+      var collapsed = false;
+      try { collapsed = localStorage.getItem('archive-collapsed') === '1'; } catch (_e) {}
+      if (matchMedia('(min-width: 1101px)').matches) {
+        document.body.classList.toggle('archive-collapsed', collapsed);
+      }
+      document.documentElement.removeAttribute('data-archive-collapsed');
+    })();
     render('');
     fetch('../briefs.json', {cache: 'no-store'}).then(function(r) { return r.ok ? r.json() : null; }).then(function(remote) {
       if (!remote) return;
